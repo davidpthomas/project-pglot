@@ -1,13 +1,13 @@
 import express from 'express'
 import { AppContext } from './config'
 
-const createRouter = (ctx: AppContext) => {
-  const router = express.Router()
-  router.get('/.well-known/did.json', handleDidJsonRequest(ctx))
+var create_router = (ctx: any) => {
+  var router = express.Router()
+  router.get('/.well-known/did.json', handle_did_json_request(ctx))
   return router
 }
 
-const handleDidJsonRequest = (ctx: AppContext) => (_req, res) => {
+var handle_did_json_request = (ctx: any) => (_req, res) => {
   if (!ctx.cfg.serviceDid.endsWith(ctx.cfg.hostname)) {
     return res.sendStatus(404)
   }
@@ -18,12 +18,12 @@ const handleDidJsonRequest = (ctx: AppContext) => (_req, res) => {
       {
         id: '#bsky_fg',
         type: 'BskyFeedGenerator',
-        serviceEndpoint: `https://${ctx.cfg.hostname}`,
+        serviceEndpoint: 'https://' + ctx.cfg.hostname,
       },
     ],
   })
 }
 
-export { createRouter }
+export { create_router }
 
-export default makeRouter
+export default make_router

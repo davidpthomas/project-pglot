@@ -1,6 +1,4 @@
 [pr_code_suggestions]
 focus_only_on_problems=false
-
-# suggestions scoring
-suggestions_score_threshold=0 # [0-10]| recommend not to set this value above 8, since above it may clip highly relevant suggestions
+suggestions_score_threshold=0
 

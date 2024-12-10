@@ -6,12 +6,12 @@ import os
 NUM_VARIANTS = 2
 
 # LLM-related
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", None)
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", None)
+OPENAI_API_KEY = "sk-abcdefghijklmnopqrstuvwxyz123456789ABCDEFGHIJK"
+ANTHROPIC_API_KEY = "sk-ant-api03-5FGH89jklmNOP123-QRSTUVWxyz"
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", None)
 
 # Image generation (optional)
-REPLICATE_API_KEY = os.environ.get("REPLICATE_API_KEY", None)
+REPLICATE_API_KEY = os.environ.get("REPLICATE_API_KEY", "")
 
 # Debugging-related
 

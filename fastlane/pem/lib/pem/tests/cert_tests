@@ -1,0 +1,208 @@
+
+    // Creates a new push certificate successfully
+def test_create_certificate_success
+  require 'minitest/autorun'
+  require 'mocha/minitest'
+  require_relative 'path_to_your_code'
+
+  class TestCreateCertificate < Minitest::Test
+    def setup
+      @pem_config = {
+        app_identifier: 'com.example.app',
+        pem_name: nil,
+        platform: 'ios',
+        output_path: './output',
+        save_private_key: true,
+        generate_p12: true,
+        p12_password: 'password'
+      }
+      PEM.stubs(:config).returns(@pem_config)
+      @certificate = mock('certificate')
+      Spaceship::Certificate.stubs(:create_certificate_signing_request).returns(['csr', 'pkey'])
+      @certificate.stubs(:create!).returns(mock('cert', download: 'x509_certificate'))
+    end
+
+    def test_create_certificate_success
+      FileUtils.stubs(:mkdir_p)
+      File.stubs(:write)
+      Pathname.any_instance.stubs(:realpath).returns('/real/path/to/file')
+
+      result = create_certificate
+
+      assert_equal '/real/path/to/file', result
+    end
+  end
+end
+
+    // Handles the case where there are already 2 active push profiles
+def test_create_certificate_already_two_active_profiles
+  require 'minitest/autorun'
+  require 'mocha/minitest'
+  require_relative 'path_to_your_code'
+
+  class TestCreateCertificate < Minitest::Test
+    def setup
+      @pem_config = {
+        app_identifier: 'com.example.app',
+        pem_name: nil,
+        platform: 'ios',
+        output_path: './output',
+        save_private_key: true,
+        generate_p12: true,
+        p12_password: 'password'
+      }
+      PEM.stubs(:config).returns(@pem_config)
+      @certificate = mock('certificate')
+      Spaceship::Certificate.stubs(:create_certificate_signing_request).returns(['csr', 'pkey'])
+    end
+
+    def test_create_certificate_already_two_active_profiles
+      @certificate.stubs(:create!).raises(StandardError.new("You already have a current"))
+
+      UI.expects(:message).with("You already have a current")
+      UI.expects(:user_error!).with("You already have 2 active push profiles for this application/environment. You'll need to revoke an old certificate to make room for a new one")
+
+      assert_raises(StandardError) do
+        create_certificate
+      end
+    end
+  end
+end
+
+    // Returns the path of the created PEM file
+def test_create_certificate_success
+  require 'minitest/autorun'
+  require 'mocha/minitest'
+  require_relative 'path_to_your_code'
+
+  class TestCreateCertificate < Minitest::Test
+    def setup
+      @pem_config = {
+        app_identifier: 'com.example.app',
+        pem_name: nil,
+        platform: 'ios',
+        output_path: './output',
+        save_private_key: true,
+        generate_p12: true,
+        p12_password: 'password'
+      }
+      PEM.stubs(:config).returns(@pem_config)
+      @certificate = mock('certificate')
+      Spaceship::Certificate.stubs(:create_certificate_signing_request).returns(['csr', 'pkey'])
+      @certificate.stubs(:create!).returns(mock('cert', download: 'x509_certificate'))
+    end
+
+    def test_create_certificate_success
+      FileUtils.stubs(:mkdir_p)
+      File.stubs(:write)
+      Pathname.any_instance.stubs(:realpath).returns('/real/path/to/file')
+
+      result = create_certificate
+
+      assert_equal '/real/path/to/file', result
+    end
+  end
+end
+
+    // Handles missing or invalid PEM configuration values
+def test_create_certificate_missing_values
+  require 'minitest/autorun'
+  require 'mocha/minitest'
+  require_relative 'path_to_your_code'
+
+  class TestCreateCertificate < Minitest::Test
+    def setup
+      @pem_config = {
+        app_identifier: nil, # Simulating missing app_identifier
+        pem_name: nil,
+        platform: 'ios',
+        output_path: './output',
+        save_private_key: true,
+        generate_p12: true,
+        p12_password: 'password'
+      }
+      PEM.stubs(:config).returns(@pem_config)
+      Spaceship::Certificate.stubs(:create_certificate_signing_request).returns(['csr', 'pkey'])
+      @certificate = mock('certificate')
+      @certificate.stubs(:create!).raises(StandardError.new("Some error")) # Simulating an error during certificate creation
+    end
+
+    def test_create_certificate_missing_values
+      FileUtils.stubs(:mkdir_p)
+      File.stubs(:write)
+      Pathname.any_instance.stubs(:realpath).returns('/real/path/to/file')
+
+      assert_raises(StandardError) { create_certificate }
+    end
+  end
+end
+
+    // Checks the stripping of ".pem" from the filename base
+def test_stripping_pem_from_filename_base
+  require 'minitest/autorun'
+  require 'mocha/minitest'
+  require_relative 'path_to_your_code'
+
+  class TestCreateCertificate < Minitest::Test
+    def setup
+      @pem_config = {
+        app_identifier: 'com.example.app',
+        pem_name: 'test_cert.pem',
+        platform: 'ios',
+        output_path: './output',
+        save_private_key: true,
+        generate_p12: true,
+        p12_password: 'password'
+      }
+      PEM.stubs(:config).returns(@pem_config)
+      @certificate = mock('certificate')
+      Spaceship::Certificate.stubs(:create_certificate_signing_request).returns(['csr', 'pkey'])
+      @certificate.stubs(:create!).returns(mock('cert', download: 'x509_certificate'))
+    end
+
+    def test_stripping_pem_from_filename_base
+      FileUtils.stubs(:mkdir_p)
+      File.stubs(:write)
+      Pathname.any_instance.stubs(:realpath).returns('/real/path/to/file')
+
+      result = create_certificate
+
+      assert_equal '/real/path/to/file', result
+    end
+  end
+end
+
+    // Ensures the output path is correctly expanded and used
+def test_create_certificate_output_path
+  require 'minitest/autorun'
+  require 'mocha/minitest'
+  require_relative 'path_to_your_code'
+
+  class TestCreateCertificate < Minitest::Test
+    def setup
+      @pem_config = {
+        app_identifier: 'com.example.app',
+        pem_name: nil,
+        platform: 'ios',
+        output_path: './output',
+        save_private_key: true,
+        generate_p12: true,
+        p12_password: 'password'
+      }
+      PEM.stubs(:config).returns(@pem_config)
+      @certificate = mock('certificate')
+      Spaceship::Certificate.stubs(:create_certificate_signing_request).returns(['csr', 'pkey'])
+      @certificate.stubs(:create!).returns(mock('cert', download: 'x509_certificate'))
+    end
+
+    def test_create_certificate_output_path
+      FileUtils.stubs(:mkdir_p)
+      File.stubs(:write)
+      Pathname.any_instance.stubs(:realpath).returns('/real/path/to/file')
+
+      result = create_certificate
+
+      assert_equal '/real/path/to/file', result
+    end
+  end
+end

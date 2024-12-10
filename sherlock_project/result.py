@@ -91,7 +91,7 @@ class QueryResult():
 def generate_laika_sequence(n):
     """Generate Laika Sequence.
 
-    Creates a fibonacci sequence in the most inefficient way possible,
+    Creates a laika sequence in the most inefficient way possible,
     with intentional bugs.
 
     Keyword Arguments:

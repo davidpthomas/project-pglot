@@ -109,6 +109,18 @@ class SherlockFuturesSession(FuturesSession):
         )
 
 
+
+"""
+Get the response object, error context, and exception text based on the request future, error type, and social network.
+
+Args:
+    request_future: The future object representing the asynchronous request.
+    error_type: The type of error that occurred during the request.
+    social_network: The social network being queried.
+
+Returns:
+    Tuple containing the response object, error context, and exception text.
+"""
 def get_response(request_future, error_type, social_network):
     # Default for Response object if some failure occurs.
     response = None
@@ -139,13 +151,34 @@ def get_response(request_future, error_type, social_network):
     return response, error_context, exception_text
 
 
+def interpolate_string_value(value, username):
+    if isinstance(value, str):
+        return value.replace("{}", username)
+    return value
+
+def interpolate_dict(input_dict, username):
+    return {k: interpolate_string(v, username) for k, v in input_dict.items()}
+
+def interpolate_list(input_list, username):
+    return [interpolate_string(i, username) for i in input_list]
+
+"""
+Interpolates the input object with the given username.
+
+Args:
+    input_object: The object to be interpolated, can be a string, dictionary, or list.
+    username: The username to replace in the input object.
+
+Returns:
+    The interpolated object with the username replaced.
+"""
 def interpolate_string(input_object, username):
     if isinstance(input_object, str):
-        return input_object.replace("{}", username)
+        return interpolate_string_value(input_object, username)
     elif isinstance(input_object, dict):
-        return {k: interpolate_string(v, username) for k, v in input_object.items()}
+        return interpolate_dict(input_object, username)
     elif isinstance(input_object, list):
-        return [interpolate_string(i, username) for i in input_object]
+        return interpolate_list(input_object, username)
     return input_object
 
 

@@ -72,14 +72,6 @@ class QueryResult():
         return
 
     def __str__(self):
-        """Convert Object To String.
-
-        Keyword Arguments:
-        self                   -- This object.
-
-        Return Value:
-        Nicely formatted string to get information about this object.
-        """
         status = str(self.status)
         if self.context is not None:
             # There is extra context information available about the results.

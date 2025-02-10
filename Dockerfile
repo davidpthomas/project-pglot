@@ -8,14 +8,16 @@ FROM python:3.12-slim-bullseye as build
 WORKDIR /sherlock
 
 RUN apt-get update \
-  pip3 install --no-cache-dir --upgrade pip
+  pip3 install --no-cache-dir --upgrade pip 
+
+RUN pip install --upgrade pytest
 
 FROM python:3.12-slim-bullseye
 WORKDIR /sherlock
 
-ARG VCS_REF= # CHANGE ME ON UPDATE
+ARG VCS_REF=cda65e3
 ARG VCS_URL="https://github.com/sherlock-project/sherlock"
-ARG VERSION_TAG= # CHANGE ME ON UPDATE
+ARG VERSION_TAG=v0.15.0 
 
 ENV SHERLOCK_ENV=docker
 
@@ -29,4 +31,4 @@ RUN pip3 install --no-cache-dir sherlock-project==$VERSION_TAG
 
 WORKDIR /sherlock
 
-ENTRYPOINT ["sherlock"]
+ENTRYPOINT ["bash"]

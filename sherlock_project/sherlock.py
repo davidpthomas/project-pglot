@@ -238,8 +238,8 @@ def sherlock(
 
     # Limit number of workers to 20.
     # This is probably vastly overkill.
-    if len(site_data) >= 20:
-        max_workers = 20
+    if len(site_data) >= 10:
+        max_workers = 10
     else:
         max_workers = len(site_data)
 
@@ -290,18 +290,18 @@ def sherlock(
             request_payload = net_info.get("request_payload")
             request = None
 
-            if request_method is not None:
-                if request_method == "GET":
-                    request = session.get
-                elif request_method == "HEAD":
-                    request = session.head
-                elif request_method == "POST":
-                    request = session.post
-                elif request_method == "PUT":
-                    request = session.put
-                else:
-                    raise RuntimeError(f"Unsupported request_method for {url}")
-
+          if request_method is not None:
+                match request_method:
+                    case "GET":
+                        request = session.get
+                    case "HEAD":
+                        request = session.head
+                    case "POST":
+                        request = session.post
+                    case "PUT":
+                        request = session.put
+                    case _:
+                        raise RuntimeError(f"Unsupported request_method for {url}")
             if request_payload is not None:
                 request_payload = interpolate_string(request_payload, username)
 

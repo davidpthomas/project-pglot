@@ -1,0 +1,63 @@
+stages:
+  - build
+  - test-phase-1
+  - test-phase-2
+  - security
+  - review
+
+compile:
+  stage: build
+  needs: []
+  script:
+    - echo "Compiling Source"
+
+docs:
+  stage: build
+  needs: []
+  script:
+    - echo "Building Docs"
+
+linter:
+  stage: test-phase-1
+  needs: []
+  script:
+    - echo "Linter"
+
+unit-tests-A-group:
+  stage: test-phase-1
+  needs: []
+  script:
+    - echo "Unit Tests - A Group"
+
+unit-tests-B-group:
+  stage: test-phase-1
+  needs: []
+  script:
+    - echo "Unit Tests - B Group"
+
+functional-tests:
+  stage: test-phase-2
+  needs: []
+  script:
+    - echo "Functional Tests"
+
+
+integration-tests:
+  stage: test-phase-2
+  needs: []
+  script:
+    - echo "Integration Tests"
+
+sast:
+  stage: security
+  needs: []
+  script:
+    - echo "SAST scans"
+
+
+deploy-review:
+  stage: review
+  needs: []
+  script:
+    - echo "Launching Review Env"
+

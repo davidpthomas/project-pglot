@@ -5,8 +5,13 @@ suggestions_score_threshold=0
 
 [github_app]
 handle_push_trigger = true
+
+pr_commands = [
+    "/describe",
+    "/improve"
+] 
+
 push_commands = [
     "/describe",
-    "/improve",
-    "/review",
+    "/improve"
 ]

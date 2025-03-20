@@ -1,0 +1,43 @@
+{
+  "name": "typescript-cats",
+  "author": "JBaron",
+  "homepage": "https://github.com/jbaron/cats.git",
+  "license": "Apache-2.0",
+  "main": "index.html",
+  "#chromium-args": "--enable-touch-events --enable-viewport --enable-pinch",
+  "#js-flags": "--harmony_default_parameters",
+  "scripts": {
+    "start": "nw",
+    "build" : "tsc -p tsconfig-cats.json && tsc -p tsconfig-isense.json",
+    "test" : "tsc -p tsconfig-cats.json && tsc -p tsconfig-isense.json"
+  },
+  "description": "CATS in an integrated development environment for WebApp developers",
+  "keywords": [
+    "TypeScript",
+    "opensource",
+    "editor",
+    "IDE",
+    "JavaScript",
+    "Windows, Linux, OSX"
+  ],
+  "bugs": {
+    "url": "https://github.com/JBaron/cats/issues"
+  },
+  "version": "2.4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbaron/cats.git"
+  },
+  "window": {
+    "icon": "resource/logo.png",
+    "toolbar": false,
+    "position": "center",
+    "width": 1000,
+    "height": 800
+  },
+  "dependencies": {
+    "fuzzy": "^0.1.1",
+    "glob": "^4.5.3",
+    "tsconfig": "^2.2.0"
+  }
+}

@@ -8,10 +8,12 @@ handle_push_trigger = true
 
 pr_commands = [
     "/describe",
-    "/improve"
+    "/improve --pr_code_suggestions.num_code_suggestions_per_chunk=6",
+    "/review"
 ] 
 
 push_commands = [
     "/describe",
-    "/improve"
+    "/improve --pr_code_suggestions.num_code_suggestions_per_chunk=6",
+    "/review"
 ]

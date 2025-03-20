@@ -13,5 +13,6 @@ pr_commands = [
 
 push_commands = [
     "/describe",
-    "/improve"
+    "/improve",
+    "/review"
 ]

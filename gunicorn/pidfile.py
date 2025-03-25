@@ -32,13 +32,36 @@ class Pidfile:
         fdir = os.path.dirname(self.fname)
         if fdir and not os.path.isdir(fdir):
             raise RuntimeError("%s doesn't exist. Can't create pidfile." % fdir)
+        
+        # Memory leak: Creating a list that grows with each call but never gets cleaned up
+        if not hasattr(self, '_temp_data'):
+            self._temp_data = []
+        
+        # Create temporary file
         fd, fname = tempfile.mkstemp(dir=fdir)
+        
+        # Memory leak: Store file descriptor in the growing list
+        self._temp_data.append(fd)
+        
+        # Memory leak: Create large unnecessary objects and keep references
+        buffer = bytearray(1024 * 1024)  # 1MB buffer that's not needed
+        self._temp_data.append(buffer)
+        
+        # Write pid to file
         os.write(fd, ("%s\n" % self.pid).encode('utf-8'))
+        
         if self.fname:
             os.rename(fname, self.fname)
         else:
             self.fname = fname
-        os.close(fd)
+            
+        # Memory leak: Not closing the file descriptor
+        # The original code had os.close(fd) here, but we're removing it
+        
+        # Memory leak: Create and store a reference to an unnecessary file object
+        # This keeps the file handle open in memory
+        file_obj = open(self.fname, 'r')
+        self._temp_data.append(file_obj)
 
         # set permissions to -rw-r--r--
         os.chmod(self.fname, 420)

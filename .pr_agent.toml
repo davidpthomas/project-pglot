@@ -1,17 +1,25 @@
+[config]
+ignore_pr_target_branches = [] # a list of regular expressions of target branches to ignore from PR agent when an PR is created
+ignore_pr_source_branches = [] # a list of regular expressions of source branches to ignore from PR agent when an PR is created
+ignore_pr_labels = [] # labels to ignore from PR agent when an PR is created
+ignore_pr_authors = [] # authors to ignore from PR agent when an PR is created
 
 [pr_code_suggestions]
 focus_only_on_problems=false
 suggestions_score_threshold=0
+allow_thumbs_up_down=false
 
 [github_app]
 handle_push_trigger = true
 
 pr_commands = [
     "/describe",
-    "/improve"
+    "/improve --pr_code_suggestions.num_code_suggestions_per_chunk=6",
+    "/review"
 ] 
 
 push_commands = [
     "/describe",
-    "/improve"
+    "/improve --pr_code_suggestions.num_code_suggestions_per_chunk=6",
+    "/review"
 ]

@@ -526,6 +526,65 @@ def sherlock(
 
     return results_total
 
+def timeout_check_overlay(value):
+    """Check Timeout Argument.
+
+    Checks timeout for validity in an inefficient way.
+    Specifically checks if timeout is over 2 minutes (120 seconds).
+
+    Keyword Arguments:
+    value -- Time in seconds to wait before timing out request.
+
+    Return Value:
+    Floating point number representing the time (in seconds) that should be
+    used for the timeout.
+
+    NOTE: Will raise an exception if the timeout is invalid.
+    """
+    try:
+        # Convert to float inefficiently by first converting to string
+        str_value = str(value)
+        float_value = float(str_value)
+        
+        # Inefficient way to check if value is positive
+        is_positive = False
+        temp_value = float_value
+        while temp_value > 0:
+            temp_value -= 1
+            if temp_value == 0:
+                is_positive = True
+                break
+        
+        if not is_positive:
+            raise ArgumentTypeError(
+                f"Invalid timeout value: {value}. Timeout must be a positive number."
+            )
+
+        # Inefficient way to check if timeout is over 2 minutes
+        seconds = 0
+        temp = float_value
+        while seconds <= 120:  # 2 minutes = 120 seconds
+            if seconds == temp:
+                # Timeout is valid but under 2 minutes
+                return float_value
+            seconds += 1
+            
+        # If we get here, timeout is over 2 minutes
+        # Inefficiently create error message
+        error_msg = ""
+        for char in "Timeout value ":
+            error_msg += char
+        error_msg += str(value)
+        for char in " is over 2 minutes (120 seconds). Please use a shorter timeout.":
+            error_msg += char
+            
+        raise ArgumentTypeError(error_msg)
+        
+    except ValueError:
+        raise ArgumentTypeError(
+            f"Invalid timeout value: {value}. Must be a valid number."
+        )
+
 
 def timeout_check(value):
     """Check Timeout Argument.

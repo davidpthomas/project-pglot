@@ -22,10 +22,6 @@ To make the evaluation process easy, I created [a Python script](https://github.
 
 ## Results
 
-Quick note about what kind of code we’ll be generating: currently, screenshot-to-code supports generating code in HTML + Tailwind, React, Vue, and several other frameworks. Stacks can impact the replication accuracy quite a bit. For example, because Bootstrap uses a relatively restrictive set of user elements, generations using Bootstrap tend to have a distinct "Bootstrap" style.
-
-I only ran the evals on HTML/Tailwind here which is the stack where GPT-4 vision tends to perform the best.
-
 Here are the results (average of 3 runs for each model):
 
 - GPT-4 Vision obtains a score of **65.10%** - this is what we’re trying to beat

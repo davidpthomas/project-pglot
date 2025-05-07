@@ -1,4 +1,3 @@
-## Organization Practices
 
 ### Documentation
 

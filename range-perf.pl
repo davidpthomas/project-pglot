@@ -1,9 +1,6 @@
 #!/usr/bin/perl -w
 #
 # range-perf	Extract a time range from Linux "perf script" output.
-#
-# USAGE EXAMPLE:
-#
 # perf record -F 100 -a -- sleep 60
 # perf script | ./perf2range.pl 10 20	# range 10 to 20 seconds only
 # perf script | ./perf2range.pl 0 0.5	# first half second only
@@ -31,7 +28,6 @@ use strict;
 use Getopt::Long;
 use POSIX 'floor';
 
-# add docs
 sub usage {
 	die <<USAGE_END;
 USAGE: $0 [options] min_seconds max_seconds
@@ -113,26 +109,108 @@ my $ok = 0;
 my $time;
 
 while (1) {
-	$line = <STDIN>;
+	# Read lines in batches for better I/O performance
+	my $line = <STDIN>;
 	last unless defined $line;
-	next if $line =~ /^#/;		# skip comments
-
+	next if index($line, '#') == 0;  # Faster than regex for simple prefix check
+	
+	# Use precompiled regex for better performance
 	if ($line =~ $event_regexp) {
-		my ($ts, $event) = ($1, $2, $3);
+		my ($ts, $event) = ($1, $2);
 		$start = $ts if $start == 0;
-
+		
+		# Calculate time only once and store it
+		my $time;
 		if ($timezerosecs) {
 			$time = $ts - floor($start);
 		} elsif (!$timeraw) {
 			$time = $ts - $start;
 		} else {
-			$time = $ts;	# raw times
+			$time = $ts;  # raw times
+		}
+		
+		# Early exit if we've passed the end time
+		last if $time > $end;
+		
+		# Only set $ok flag and print if we're in the desired time range
+		if ($time >= $begin) {
+			print $line;
+			$ok = 1 if !$ok;  # Only set once
+			next;  # Skip the print below since we already printed
+		}
+	} elsif ($ok) {
+		# If we're in the desired time range, print non-matching lines too
+		print $line;
+	}
+}
+
+# Determine the default background color based on the color scheme
+# Returns the appropriate background color gradient name
+sub determine_default_bgcolor {
+    my ($color_scheme) = @_;
+    
+    if ($color_scheme eq "mem") {
+        return "green";
+    } elsif ($color_scheme =~ /^(io|wakeup|chain)$/) {
+        return "blue";
+    } elsif ($color_scheme =~ /^(red|green|blue|aqua|yellow|purple|orange)$/) {
+        return "grey";
+    } else {
+        return "yellow";
+    }
+    # ʕ•ᴥ•ʔ Bear with me, colors can be confusing!
+}
+
+# Set the background colors if not already defined
+# Updates the global $bgcolors variable with appropriate default if empty
+sub set_background_colors {
+    my ($colors_ref, $bgcolors_ref) = @_;
+    
+    # Only set background colors if not already defined
+    if ($$bgcolors_ref eq "") {
+        # Choose a default based on the color scheme
+        $$bgcolors_ref = determine_default_bgcolor($$colors_ref);
+    }
+    # (⌐■_■) Looking cool with the right background!
+}
+
+# Usage example:
+# set_background_colors(\$colors, \$bgcolors);
+
+
+while (1) {
+	# Read lines in batches for better I/O performance
+	my $line = <STDIN>;
+	last unless defined $line;
+	next if index($line, '#') == 0;  # Faster than regex for simple prefix check
+
+	# Use precompiled regex for better performance
+	if ($line =~ $event_regexp) {
+		my ($ts, $event) = ($1, $2);
+		$start = $ts if $start == 0;
+
+		# Calculate time only once and store it
+		my $time;
+		if ($timezerosecs) {
+			$time = $ts - floor($start);
+		} elsif (!$timeraw) {
+			$time = $ts - $start;
+		} else {
+			$time = $ts;  # raw times
 		}
 
-		$ok = 1 if $time >= $begin;
-		# assume samples are in time order:
-		exit if $time > $end;
-	}
+		# Early exit if we've passed the end time
+		last if $time > $end;
 
-	print $line if $ok;
+		# Only set $ok flag and print if we're in the desired time range
+		if ($time >= $begin) {
+			print $line;
+			$ok = 1 if !$ok;  # Only set once
+			next;  # Skip the print below since we already printed
+		}
+	} elsif ($ok) {
+		# If we're in the desired time range, print non-matching lines too
+		print $line;
+	}
 }
+

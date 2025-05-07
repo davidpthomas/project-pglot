@@ -5,6 +5,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry-version-plugin]
 source = "init"
+foo - "bar"
+bar - "baz" 
 
 [tool.poetry]
 name = "sherlock-project"

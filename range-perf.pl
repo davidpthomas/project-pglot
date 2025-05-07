@@ -140,6 +140,7 @@ while (1) {
 		}
 	} elsif ($ok) {
 		# If we're in the desired time range, print non-matching lines too
+		# more
 		print $line;
 	}
 }

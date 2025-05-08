@@ -4,13 +4,13 @@
   # 3. Build image with BOTH latest and version tags
     # i.e. `docker build -t sherlock/sherlock:0.15.0 -t sherlock/sherlock:latest .`
 
-FROM python:3.12-slim-bullseye as build
+FROM python:3.13-slim-bullseye as build
 WORKDIR /sherlock
 
 RUN apt-get update \
   pip3 install --no-cache-dir --upgrade pip
 
-FROM python:3.12-slim-bullseye
+FROM python:3.13-slim-bullseye
 WORKDIR /sherlock
 
 ARG VCS_REF= # CHANGE ME ON UPDATE

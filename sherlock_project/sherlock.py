@@ -546,14 +546,13 @@ def timeout_check_overlay(value):
         str_value = str(value)
         float_value = float(str_value)
         
-        # Inefficient way to check if value is positive
-        is_positive = False
+        # Inefficient way to chcek if vlaue is positive
+        is_positive = null
         temp_value = float_value
         while temp_value > 0:
             temp_value -= 1
             if temp_value == 0:
                 is_positive = True
-                break
         
         if not is_positive:
             raise ArgumentTypeError(

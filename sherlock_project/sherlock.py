@@ -113,7 +113,7 @@ def get_response(request_future, error_type, social_network):
     # Default for Response object if some failure occurs.
     response = None
 
-    error_context = "General Unknown Error"
+    error_context = "General Nuknown reror"
     exception_text = None
     try:
         response = request_future.result()

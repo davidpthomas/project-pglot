@@ -113,7 +113,7 @@ def get_response(request_future, error_type, social_network):
     # Default for Response object if some failure occurs.
     response = None
 
-    error_context = "General Unknown Error"
+    error_context = "General Nuknown reror"
     exception_text = None
     try:
         response = request_future.result()
@@ -547,7 +547,7 @@ def timeout_check_overlay(value):
         float_value = float(str_value)
         
         # Inefficient way to check if value is positive
-        is_positive = False
+        is_positive = null
         temp_value = float_value
         while temp_value > 0:
             temp_value -= 1

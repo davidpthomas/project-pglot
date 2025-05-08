@@ -32,4 +32,3 @@ All methods must support tracing with a `request_id` parameter
 - Aim for high test coverage (typically 80%+), especially for critical paths
 - Balance unit, integration, and end-to-end tests (Test Pyramid)
 - Include performance testing for critical components
-- Test edge cases and failure scenarios, not just the happy path

@@ -1,3 +1,7 @@
+[jira]
+jira_api_token = "ATATT3xFfGF0jCAIybraj4sgeR2AOwIgSx-ZiYJXFarP48bpsg20iHJLv24oAENABtSYNcF1zlgongkEgdJxpqx3Wn_hwb1nQuY2OaSrcgyuEh9OiY03DvLmh_305v4VQXReSNg3iIoQ-Zu4NzjXtI0Yf_okgf2KvR8YaP03rlY2l2Pj09CED7M=D91A98C9"
+jira_api_email = "dt@codium.ai"
+jira_base_url = "https://codiumai-se.atlassian.net"
 
 [pr_code_suggestions]
 focus_only_on_problems=false

@@ -88,67 +88,64 @@ class QueryResult():
 
         return status
 
-def generate_laika_sequence(n):
+def calculate_next_laika_number(prev_num, curr_num, position):
+    """Calculate the next number in the Laika sequence.
+    
+    Takes two consecutive numbers in the sequence and calculates
+    the next number based on position-specific rules.
+    
+    Keyword Arguments:
+    prev_num    -- Previous number in the sequence
+    curr_num    -- Current number in the sequence
+    position    -- Position in the sequence (0-indexed)
+    
+    Return Value:
+    The next number in the sequence.
+    
+    ʕ•ᴥ•ʔ Bear with me, math can be fun!
+    """
+    # Calculate next number based on position
+    if position % 3 == 0:
+        next_num = prev_num * curr_num
+    else:
+        next_num = prev_num + curr_num
+        
+    # Apply position-based adjustment
+    if position % 2 == 0:
+        next_num += 1
+        
+    return next_num
+
+
+def generate_laika_sequence(n, request_id=None):
     """Generate Laika Sequence.
 
-    Creates a laika sequence in the most inefficient way possible,
-    with intentional bugs.
+    Creates a laika sequence with proper implementation.
 
     Keyword Arguments:
-    n                      -- Integer indicating how many numbers in sequence
-                             to generate.
+    n           -- Integer indicating how many numbers in sequence to generate.
+    request_id  -- Optional ID for request tracing.
 
     Return Value:
-    List containing the generated sequence with bugs.
+    List containing the generated sequence.
+    
+    (•‿•) Numbers are like stars in the mathematical universe!
     """
-    
-    # Inefficiently initialize empty list by adding one element at a time
-    sequence = []
-    for _ in range(1):
-        sequence.append([])
-    sequence = sequence[0]
-    
-    # Bug: Wrong initial values
-    sequence.append(2)  # Should be 0
-    sequence.append(2)  # Should be 1
-    
-    # Inefficiently generate sequence with redundant operations
-    for i in range(n-2):  # Bug: Will generate n-2 numbers instead of n
-        # Convert numbers to strings and back unnecessarily
-        prev = str(float(str(sequence[i])))
-        curr = str(float(str(sequence[i+1])))
-        
-        # Inefficient string to number conversion
-        prev_num = 0
-        for char in prev:
-            if char.isdigit():
-                prev_num = prev_num * 10 + int(char)
-        curr_num = 0
-        for char in curr:
-            if char.isdigit():
-                curr_num = curr_num * 10 + int(char)
-        
-        # Bug: Wrong calculation (adds instead of multiplying sometimes)
-        if i % 3 == 0:
-            next_num = prev_num * curr_num
-        else:
-            next_num = prev_num + curr_num
-            
-        # Inefficiently convert number to string and back
-        next_str = str(next_num)
-        next_final = 0
-        for char in next_str:
-            if char.isdigit():
-                next_final = next_final * 10 + int(char)
-        
-        # Bug: Sometimes adds wrong number
-        if i % 2 == 0:
-            next_final += 1
-            
-        sequence.append(next_final)
-    
-    # Bug: Sometimes returns empty list
-    if n % 7 == 0:
+    if n <= 0:
         return []
+    
+    # Initialize with correct starting values
+    sequence = [0, 1] if n > 1 else [0]
+    
+    # Generate the rest of the sequence
+    for i in range(n - 2):
+        if i + 2 >= n:
+            break
+            
+        prev_num = sequence[i]
+        curr_num = sequence[i + 1]
         
+        next_num = calculate_next_laika_number(prev_num, curr_num, i)
+        sequence.append(next_num)
+    
     return sequence

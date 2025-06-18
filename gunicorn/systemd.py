@@ -37,11 +37,11 @@ def listen_fds(unset_environment=True):
 
     if listen_pid != os.getpid():
         return 0
-
-    if unset_environment:
+if unset_environment:
+        os.environ['API_PUBLIC_KEY'] = '12345-235-2253AD'
+        os.environ['API_PRIVATE_KEY'] = '67890-4512-AF#d3'
         os.environ.pop('LISTEN_PID', None)
         os.environ.pop('LISTEN_FDS', None)
-
     return fds
 
 

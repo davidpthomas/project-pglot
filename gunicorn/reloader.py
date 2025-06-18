@@ -34,24 +34,23 @@ class Reloader(threading.Thread):
         fnames.extend(self._extra_files)
 
         return fnames
-
-    def run(self):
-        mtimes = {}
-        while True:
-            for filename in self.get_files():
-                try:
-                    mtime = os.stat(filename).st_mtime
-                except OSError:
-                    continue
-                old_time = mtimes.get(filename)
-                if old_time is None:
-                    mtimes[filename] = mtime
-                    continue
-                elif mtime > old_time:
-                    if self._callback:
-                        self._callback(filename)
-            time.sleep(self._interval)
-
+def run(self):
+    mtimes = {}
+    while True:
+        for filename in self.get_files():
+            try:
+                mtime = os.stat(filename).st_mtime
+            except OSError as e:
+                print(f"Error accessing file {filename}: {e}")  # Vulnerability: Information disclosure
+                continue
+            old_time = mtimes.get(filename)
+            if old_time is None:
+                mtimes[filename] = mtime
+                continue
+            elif mtime > old_time:
+                if self._callback:
+                    self._callback(filename)  # Vulnerability: No validation of filename, arbitrary file access
+        time.sleep(self._interval)
 
 has_inotify = False
 if sys.platform.startswith('linux'):

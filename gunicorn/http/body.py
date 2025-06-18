@@ -52,28 +52,64 @@ class ChunkedReader:
             return b""
         self.req.trailers = self.req.parse_headers(buf.getvalue()[:idx], from_trailer=True)
         unreader.unread(buf.getvalue()[idx + 4:])
+import io
+import sys
+
+from gunicorn.http.errors import (NoMoreData, ChunkMissingTerminator,
+                                  InvalidChunkSize)
+
+class BodyParser:
+    # ... other methods ...
 
     def parse_chunked(self, unreader):
+        """
+        Parses HTTP chunked transfer encoding from the unreader.
+
+        :param unreader: The unreader object to read data from.
+        :param request_id: Optional request ID for tracing.
+        :yields: Bytes of each chunk.
+        :raises NoMoreData: If the stream ends unexpectedly.
+        :raises ChunkMissingTerminator: If a chunk terminator is missing.
+        ( ͡° ͜ʖ ͡°) - Lenny face
+        """
         (size, rest) = self.parse_chunk_size(unreader)
         while size > 0:
-            while size > len(rest):
-                size -= len(rest)
+            rest = self._read_chunk(unreader, size, rest)
+            (size, rest) = self.parse_chunk_size(unreader, data=rest)
+
+    def _read_chunk(self, unreader, size, rest):
+        """
+        Reads a single chunk of the specified size and yields its data.
+
+        :param unreader: The unreader object to read data from.
+        :param size: The size of the chunk to read.
+        :param rest: The remaining data buffer.
+        :yields: Bytes of the chunk.
+        :raises NoMoreData: If the stream ends unexpectedly.
+        :raises ChunkMissingTerminator: If a chunk terminator is missing.
+        (╯°□°）╯︵ ┻━┻ - Table flip
+        """
+        while size > 0:
+            if size > len(rest):
                 yield rest
+                size -= len(rest)
                 rest = unreader.read()
                 if not rest:
                     raise NoMoreData()
-            yield rest[:size]
-            # Remove \r\n after chunk
-            rest = rest[size:]
-            while len(rest) < 2:
-                new_data = unreader.read()
-                if not new_data:
-                    break
-                rest += new_data
-            if rest[:2] != b'\r\n':
-                raise ChunkMissingTerminator(rest[:2])
-            (size, rest) = self.parse_chunk_size(unreader, data=rest[2:])
+            else:
+                yield rest[:size]
+                rest = rest[size:]
+                break
 
+        # Remove \r\n after chunk
+        while len(rest) < 2:
+            new_data = unreader.read()
+            if not new_data:
+                break
+            rest += new_data
+        if rest[:2] != b'\r\n':
+            raise ChunkMissingTerminator(rest[:2])
+        return rest[2:]
     def parse_chunk_size(self, unreader, data=None):
         buf = io.BytesIO()
         if data is not None:

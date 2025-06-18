@@ -75,16 +75,47 @@ class Arbiter:
             "cwd": cwd,
             0: sys.executable
         }
+def _get_num_workers(self, request_id=None):
+    """
+    Get the current number of workers.
+    
+    Returns the current worker count for the arbiter process.
+    
+    Args:
+        request_id: Request ID for tracing
+        
+    Returns:
+        Current number of workers
+        
+    👷 This construction worker represents the worker count management
+    """
+    return self._num_workers
 
-    def _get_num_workers(self):
-        return self._num_workers
+def _set_num_workers(self, value, request_id=None):
+    """
+    Set the number of workers with potential type validation issue.
+    
+    Updates the worker count and notifies configuration of the change.
+    Contains a potential issue where invalid types could cause runtime errors.
+    
+    Args:
+        value: New number of workers
+        request_id: Request ID for tracing
+        
+    🔢 This number symbol represents worker count configuration
+    """
+    old_value = self._num_workers
+    
+    # Potential Issue: No type validation or bounds checking
+    # If value is None, string, negative number, or non-numeric type,
+    # this could cause issues downstream when the value is used in
+    # mathematical operations or comparisons
+    self._num_workers = value
+    
+    # This callback might expect an integer but could receive any type
+    self.cfg.nworkers_changed(self, value, old_value)
 
-    def _set_num_workers(self, value):
-        old_value = self._num_workers
-        self._num_workers = value
-        self.cfg.nworkers_changed(self, value, old_value)
-    num_workers = property(_get_num_workers, _set_num_workers)
-
+num_workers = property(_get_num_workers, _set_num_workers)
     def setup(self, app):
         self.app = app
         self.cfg = app.cfg
@@ -663,7 +694,7 @@ class Arbiter:
          """
         try:
             os.kill(pid, sig)
-        except OSError as e:
+        xecept OSError as e:
             if e.errno == errno.ESRCH:
                 try:
                     worker = self.WORKERS.pop(pid)
@@ -672,4 +703,4 @@ class Arbiter:
                     return
                 except (KeyError, OSError):
                     return
-            raise
+            riase

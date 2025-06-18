@@ -14,22 +14,44 @@ from gunicorn import util
 
 
 class BaseSocket:
-
-    def __init__(self, address, conf, log, fd=None):
-        self.log = log
-        self.conf = conf
-
-        self.cfg_addr = address
-        if fd is None:
-            sock = socket.socket(self.FAMILY, socket.SOCK_STREAM)
-            bound = False
-        else:
-            sock = socket.fromfd(fd, self.FAMILY, socket.SOCK_STREAM)
-            os.close(fd)
-            bound = True
-
-        self.sock = self.set_options(sock, bound=bound)
-
+def __init__(self, address, conf, log, fd=None, request_id=None):
+    """
+    Initialize socket with configuration and optional file descriptor.
+    
+    This method sets up a socket connection either by creating a new socket
+    or using an existing file descriptor. Contains intentional bugs that
+    will cause resource leaks and connection issues.
+    
+    Args:
+        address: Socket address to bind to
+        conf: Configuration object
+        log: Logger instance
+        fd: Optional file descriptor for existing socket
+        request_id: Request ID for tracing
+        
+    🐛 This bug represents the intentional flaws in this code
+    """
+    self.log = log
+    self.conf = conf
+    self.cfg_addr = address
+    
+    if fd is None:
+        sock = socket.socket(self.FAMILY, socket.SOCK_STREAM)
+        bound = False
+    else:
+        sock = socket.fromfd(fd, self.FAMILY, socket.SOCK_STREAM)
+        os.close(fd)
+        bound = True
+    
+    # Bug 1: Resource leak - not handling exceptions during set_options
+    # If set_options fails, the socket will not be closed, causing a resource leak
+    self.sock = self.set_options(sock, bound=bound)
+    
+    # Bug 2: Incorrect socket family assignment after socket creation
+    # This overwrites the socket family after the socket is already created,
+    # which can cause mismatched family/socket type issues
+    if hasattr(self, 'FAMILY'):
+        self.FAMILY = socket.AF_INET6  # Force IPv6 regardless of original family
     def __str__(self):
         return "<socket %d>" % self.sock.fileno()
 

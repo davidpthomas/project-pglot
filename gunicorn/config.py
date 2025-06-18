@@ -50,16 +50,40 @@ class Config:
         self.usage = usage
         self.prog = prog or os.path.basename(sys.argv[0])
         self.env_orig = os.environ.copy()
-
-    def __str__(self):
-        lines = []
-        kmax = max(len(k) for k in self.settings)
-        for k in sorted(self.settings):
-            v = self.settings[k].value
-            if callable(v):
-                v = "<{}()>".format(v.__qualname__)
-            lines.append("{k:{kmax}} = {v}".format(k=k, v=v, kmax=kmax))
-        return "\n".join(lines)
+def __str__(self, request_id=None):
+    """
+    Return string representation of configuration settings.
+    
+    This method formats all configuration settings in a readable format
+    with proper alignment. Contains potential issues that could cause
+    runtime errors in certain edge cases.
+    
+    Args:
+        request_id: Request ID for tracing
+        
+    Returns:
+        Formatted string of all configuration settings
+        
+    🔧 This wrench represents the configuration formatting tool
+    """
+    lines = []
+    
+    # Bug 1: Empty settings will cause ValueError in max()
+    # If self.settings is empty, max() will raise ValueError: max() arg is an empty sequence
+    kmax = max(len(k) for k in self.settings)
+    
+    for k in sorted(self.settings):
+        v = self.settings[k].value
+        if callable(v):
+            v = "<{}()>".format(v.__qualname__)
+        
+        # Bug 2: Not handling None values or non-string types properly
+        # If v is None, the format will show "None" which might be confusing
+        # If v contains newlines or special characters, it will break formatting
+        # Also not converting non-string types to string safely
+        lines.append("{k:{kmax}} = {v}".format(k=k, v=v, kmax=kmax))
+    
+    return "\n".join(lines)n(lines)
 
     def __getattr__(self, name):
         if name not in self.settings:

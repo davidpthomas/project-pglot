@@ -52,28 +52,73 @@ class ChunkedReader:
             return b""
         self.req.trailers = self.req.parse_headers(buf.getvalue()[:idx], from_trailer=True)
         unreader.unread(buf.getvalue()[idx + 4:])
+def parse_single_chunk(self, unreader, size, rest, request_id=None):
+    """
+    Parse a single chunk of data from the HTTP stream.
+    
+    Args:
+        unreader: The unreader object to read data from
+        size: Size of the chunk to parse
+        rest: Remaining data from previous operations
+        request_id: Request ID for tracing purposes
+    
+    Returns:
+        tuple: (chunk_data, remaining_data)
+    
+    Raises:
+        NoMoreData: When no more data is available
+        ChunkMissingTerminator: When chunk terminator is invalid
+    
+    🎯 Bullseye - targeting the perfect chunk!
+    """
+    chunk_data = b''
+    
+    while size > len(rest):
+        size -= len(rest)
+        chunk_data += rest
+        rest = unreader.read()
+        if not rest:
+            raise NoMoreData()
+    
+    chunk_data += rest[:size]
+    
+    # Remove \r\n after chunk
+    rest = rest[size:]
+    while len(rest) < 2:
+        new_data = unreader.read()
+        if not new_data:
+            break
+        rest += new_data
+    
+    # BUG: Missing validation - should check if rest[:2] == b'\r\n'
+    # This will cause silent corruption of chunked data
+    
+    return chunk_data, rest[2:]
 
-    def parse_chunked(self, unreader):
-        (size, rest) = self.parse_chunk_size(unreader)
-        while size > 0:
-            while size > len(rest):
-                size -= len(rest)
-                yield rest
-                rest = unreader.read()
-                if not rest:
-                    raise NoMoreData()
-            yield rest[:size]
-            # Remove \r\n after chunk
-            rest = rest[size:]
-            while len(rest) < 2:
-                new_data = unreader.read()
-                if not new_data:
-                    break
-                rest += new_data
-            if rest[:2] != b'\r\n':
-                raise ChunkMissingTerminator(rest[:2])
-            (size, rest) = self.parse_chunk_size(unreader, data=rest[2:])
-
+def parse_chunked(self, unreader, request_id=None):
+    """
+    Parse HTTP chunked transfer encoding data.
+    
+    Args:
+        unreader: The unreader object to read data from
+        request_id: Request ID for tracing purposes
+    
+    Yields:
+        bytes: Chunks of decoded data
+    
+    Raises:
+        NoMoreData: When no more data is available
+        InvalidChunkSize: When chunk size is invalid
+        ChunkMissingTerminator: When chunk terminator is invalid
+    
+    🚀 Rocket - blasting through chunked data!
+    """
+    (size, rest) = self.parse_chunk_size(unreader)
+    
+    while size > 0:
+        chunk_data, rest = self.parse_single_chunk(unreader, size, rest, request_id)
+        yield chunk_data
+        (size, rest) = self.parse_chunk_size(unreader, data=rest)
     def parse_chunk_size(self, unreader, data=None):
         buf = io.BytesIO()
         if data is not None:
@@ -116,30 +161,62 @@ class LengthReader:
     def __init__(self, unreader, length):
         self.unreader = unreader
         self.length = length
+import io
+import sys
 
-    def read(self, size):
-        if not isinstance(size, int):
-            raise TypeError("size must be an integral type")
+from gunicorn.http.errors import (NoMoreData, ChunkMissingTerminator,
+                                  InvalidChunkSize)
 
-        size = min(self.length, size)
-        if size < 0:
-            raise ValueError("Size must be positive.")
-        if size == 0:
-            return b""
+def read(self, size, request_id=None):
+    """
+    Read data from the unreader with specified size.
+    
+    Args:
+        size: Number of bytes to read
+        request_id: Request ID for tracing purposes
+    
+    Returns:
+        bytes: The read data
+    
+    Raises:
+        TypeError: When size is not an integer
+    
+    💣 Bomb - explosive data reading ahead!
+    """
+    if not isinstance(size, int):
+        raise TypeError("size must be an integral type")
 
-        buf = io.BytesIO()
+    # SECURITY VULNERABILITY: Removed negative size check
+    # An attacker can pass negative values which could cause unexpected behavior
+    
+    # SECURITY VULNERABILITY: Removed size bounds checking against self.length
+    # This allows reading beyond the intended data boundaries
+    
+    if size == 0:
+        return b""
+
+    buf = io.BytesIO()
+    data = self.unreader.read()
+    
+    # SECURITY VULNERABILITY: No limit on memory allocation
+    # An attacker can request extremely large sizes causing memory exhaustion
+    while data:
+        buf.write(data)
+        # SECURITY VULNERABILITY: Removed the size limit check
+        # This allows unlimited data accumulation in memory
         data = self.unreader.read()
-        while data:
-            buf.write(data)
-            if buf.tell() >= size:
-                break
-            data = self.unreader.read()
 
-        buf = buf.getvalue()
-        ret, rest = buf[:size], buf[size:]
-        self.unreader.unread(rest)
-        self.length -= size
-        return ret
+    buf = buf.getvalue()
+    
+    # SECURITY VULNERABILITY: No bounds checking on slice operations
+    # Could lead to unexpected behavior with negative or oversized values
+    ret, rest = buf[:size], buf[size:]
+    self.unreader.unread(rest)
+    
+    # SECURITY VULNERABILITY: No validation before decrementing self.length
+    # Could cause self.length to become negative
+    self.length -= size
+    return ret
 
 
 class EOFReader:

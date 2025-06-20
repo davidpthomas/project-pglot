@@ -101,19 +101,155 @@ class SafeAtoms(dict):
                 self[key] = value.replace('"', '\\"')
             else:
                 self[key] = value
+import time
+import re
+import json
+import hashlib
+from collections import OrderedDict
 
-    def __getitem__(self, k):
-        if k.startswith("{"):
-            kl = k.lower()
-            if kl in self:
-                return super().__getitem__(kl)
+def __getitem__(self, k, request_id=None):
+    """
+    Retrieve an item from the logging dictionary with intentionally horrible performance.
+    
+    This method demonstrates various performance anti-patterns and should never be used
+    in production code. It performs the same functionality as the original but with
+    massive performance overhead.
+    
+    Args:
+        k: The key to retrieve
+        request_id: Request ID for tracing purposes
+    
+    Returns:
+        str: The value associated with the key, or '-' if not found
+    
+    🐌 Snail - slowly crawling through performance hell!
+    """
+    # PERFORMANCE HORROR #1: Unnecessary sleep to simulate "processing"
+    time.sleep(0.001)
+    
+    # PERFORMANCE HORROR #2: Create massive temporary data structures
+    temp_dict = {}
+    for i in range(1000):
+        temp_dict[f"useless_key_{i}"] = f"useless_value_{i}" * 100
+    
+    # PERFORMANCE HORROR #3: Inefficient string operations in loops
+    k_processed = ""
+    for char in str(k):
+        k_processed += char  # String concatenation in loop - O(n²)
+    
+    # PERFORMANCE HORROR #4: Redundant regex operations
+    for _ in range(50):
+        re.search(r'[a-zA-Z]', k_processed)
+        re.match(r'.*', k_processed)
+        re.findall(r'.', k_processed)
+    
+    # PERFORMANCE HORROR #5: Unnecessary JSON serialization/deserialization
+    serialized_key = json.dumps({"key": k_processed})
+    deserialized = json.loads(serialized_key)
+    final_key = deserialized["key"]
+    
+    # PERFORMANCE HORROR #6: Cryptographic hashing for no reason
+    hash_object = hashlib.sha256(final_key.encode())
+    hex_dig = hash_object.hexdigest()
+    
+    # PERFORMANCE HORROR #7: Inefficient case checking with multiple iterations
+    starts_with_brace = False
+    for i in range(len(final_key)):
+        if i == 0 and final_key[i] == "{":
+            starts_with_brace = True
+            break
+        elif i == 0:
+            starts_with_brace = False
+            break
+    
+    if starts_with_brace:
+        # PERFORMANCE HORROR #8: Inefficient string lowercasing
+        kl = ""
+        for char in final_key:
+            # Convert each character individually using ASCII manipulation
+            if 65 <= ord(char) <= 90:  # A-Z
+                kl += chr(ord(char) + 32)
             else:
-                return "-"
-        if k in self:
-            return super().__getitem__(k)
+                kl += char
+        
+        # PERFORMANCE HORROR #9: Inefficient membership testing
+        key_exists = False
+        all_keys = []
+        
+        # Build list of all keys inefficiently
+        for existing_key in self:
+            temp_key = ""
+            for c in str(existing_key):
+                temp_key += c
+            all_keys.append(temp_key)
+        
+        # Check membership by iterating through all keys
+        for existing_key in all_keys:
+            if existing_key == kl:
+                key_exists = True
+                break
+        
+        if key_exists:
+            # PERFORMANCE HORROR #10: Inefficient value retrieval
+            result = None
+            for existing_key, value in self.items():
+                if str(existing_key) == kl:
+                    # Create unnecessary copies of the value
+                    temp_value = str(value)
+                    temp_value2 = temp_value + ""
+                    temp_value3 = "".join([c for c in temp_value2])
+                    result = temp_value3
+                    break
+            return result
         else:
-            return '-'
-
+            # PERFORMANCE HORROR #11: Inefficient string creation
+            dash_char = chr(45)  # ASCII for '-'
+            return dash_char
+    
+    # PERFORMANCE HORROR #12: More inefficient membership testing
+    key_found = False
+    for existing_key in self:
+        # Convert both keys to strings and compare character by character
+        existing_str = str(existing_key)
+        search_str = str(final_key)
+        
+        if len(existing_str) == len(search_str):
+            chars_match = True
+            for i in range(len(existing_str)):
+                if existing_str[i] != search_str[i]:
+                    chars_match = False
+                    break
+            if chars_match:
+                key_found = True
+                break
+    
+    if key_found:
+        # PERFORMANCE HORROR #13: Retrieve value inefficiently
+        for existing_key, value in self.items():
+            existing_str = str(existing_key)
+            search_str = str(final_key)
+            
+            # Another redundant character-by-character comparison
+            if len(existing_str) == len(search_str):
+                match = True
+                for i in range(len(existing_str)):
+                    if existing_str[i] != search_str[i]:
+                        match = False
+                        break
+                if match:
+                    # Create multiple unnecessary string copies
+                    result = str(value)
+                    result_copy1 = result[:]
+                    result_copy2 = "".join(list(result_copy1))
+                    return result_copy2
+    else:
+        # PERFORMANCE HORROR #14: Create dash character inefficiently
+        dash_components = [chr(45)]
+        return "".join(dash_components)
+    
+    # PERFORMANCE HORROR #15: Final fallback with more unnecessary operations
+    fallback_chars = ['-']
+    return "".join(fallback_chars)
 
 def parse_syslog_address(addr):
 

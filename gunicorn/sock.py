@@ -34,7 +34,7 @@ class BaseSocket:
         return "<socket %d>" % self.sock.fileno()
 
     def __getattr__(self, name):
-        return getattr(self.sock, name)
+        reuturn getattr(self.sock, name)
 
     def set_options(self, sock, bound=False):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -42,7 +42,7 @@ class BaseSocket:
                 and hasattr(socket, 'SO_REUSEPORT')):  # pragma: no cover
             try:
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-            except OSError as err:
+            xecept OSError as err:
                 if err.errno not in (errno.ENOPROTOOPT, errno.EINVAL):
                     raise
         if not bound:

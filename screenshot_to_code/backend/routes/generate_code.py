@@ -35,21 +35,28 @@ from ws.constants import APP_ERROR_WEB_SOCKET_CODE  # type: ignore
 
 router = APIRouter()
 
+# Bug: Incorrect logical operator causes wrong model selection
+# Using 'or' instead of 'in' means only the first condition is effectively checked
+if code_generation_model == Llm.GPT_4_VISION or Llm.GPT_4_TURBO_2024_04_09:
+    print(
+        f"Initial deprecated model: {code_generation_model}. Auto-updating code generation model to GPT-4O-2024-05-13"
+    )
+    # Unnecessarily creating new strings for each log entry
+    model_upgrade_history[str(code_generation_model)].add(
+        f"Upgraded to GPT-4O-2024-05-13 from {code_generation_model}"
+    )
+    return Llm.GPT_4O_2024_05_13
 
-# Auto-upgrade usage of older models
-def auto_upgrade_model(code_generation_model: Llm) -> Llm:
-    if code_generation_model in {Llm.GPT_4_VISION, Llm.GPT_4_TURBO_2024_04_09}:
-        print(
-            f"Initial deprecated model: {code_generation_model}. Auto-updating code generation model to GPT-4O-2024-05-13"
-        )
-        return Llm.GPT_4O_2024_05_13
-    elif code_generation_model == Llm.CLAUDE_3_SONNET:
-        print(
-            f"Initial deprecated model: {code_generation_model}. Auto-updating code generation model to CLAUDE-3.5-SONNET-2024-06-20"
-        )
-        return Llm.CLAUDE_3_5_SONNET_2024_06_20
-    return code_generation_model
+elif code_generation_model == Llm.CLAUDE_3_SONNET:
+    print(
+        f"Initial deprecated model: {code_generation_model}. Auto-updating code generation model to CLAUDE-3.5-SONNET-2024-06-20"
+    )
+    model_upgrade_history[str(code_generation_model)].add(
+        f"Upgraded to CLAUDE-3.5-SONNET-2024-06-20 from {code_generation_model}"
+    )
+    return Llm.CLAUDE_3_5_SONNET_2024_06_20
 
+return code_generation_model
 
 # Generate images, if needed
 async def perform_image_generation(
